@@ -14,18 +14,18 @@ provider:
     # Valid values for Effect are Allow and Deny. Default value is Deny.
     - Effect: Allow
     # Actions supported by DynamoDB https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations.html
-    Action:
-      - dynamodb:Query
-      - dynamodb:Scan
-      - dynamodb:GetItem
-      - dynamodb:PutItem
-      - dynamodb:UpdateItem
-      - dynamodb:DeleteItem
-    Resource:
-      # Uses AWS built in intrinsic function to define a dynamodb resource
-      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getatt.html
-      # Syntax: `Fn::GetAtt: [ logicalNameOfResource, attributeName ]`
-      - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        # Uses AWS built in intrinsic function to define a dynamodb resource
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getatt.html
+        # Syntax: `Fn::GetAtt: [ logicalNameOfResource, attributeName ]`
+        - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
   # TODO: Find docs link
   # Passing the table name as an environment variable so our functions can use it.
   environment:
@@ -39,7 +39,7 @@ functions:
       - http: 'ANY {proxy+}'
 
 resources:
-  Resource:
+  Resources:
     UsersDynamoDBTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:

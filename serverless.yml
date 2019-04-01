@@ -1,7 +1,16 @@
 service: serverless-express-rest-api
 
+plugins:
+  - serverless-dynamodb-local
+  # serverless-offline needs to be the last in the list
+  - serverless-offline
+
 custom:
   tableName: 'users-table-${self:provider.stage}'
+  dynamodb:
+    start:
+      migrate: true
+
 
 provider:
   name: aws

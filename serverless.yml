@@ -1,10 +1,35 @@
 service: serverless-express-rest-api
 
+custom:
+  tableName: 'users-table-${self:provider.stage}'
+
 provider:
   name: aws
   runtime: nodejs6.10
   stage: dev
   region: us-east-1
+  # grants permissions
+  iamRoleStatements:
+    # The Effect element is required and specifies whether the statement results in an allow or an explicit deny.
+    # Valid values for Effect are Allow and Deny. Default value is Deny.
+    - Effect: Allow
+    # Actions supported by DynamoDB https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations.html
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource:
+      # Uses AWS built in intrinsic function to define a dynamodb resource
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getatt.html
+      # Syntax: `Fn::GetAtt: [ logicalNameOfResource, attributeName ]`
+      - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
+  # TODO: Find docs link
+  # Passing the table name as an environment variable so our functions can use it.
+  environment:
+    USERS_TABLE: ${self:custom.tableName}
 
 functions:
   app:
@@ -12,3 +37,29 @@ functions:
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
+
+resources:
+  Resource:
+    UsersDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        # A list of attributes that describe the key schema for the table and indexes.
+        AttributeDefinitions:
+          -
+            # name of an attribute, 1-255 characters, no restriction
+            AttributeName: userId
+            # data type for the attribute. S for string data, N for numeric, B for binary
+            AttributeType: S
+        # Specifies the attributes that make up the primary key for the table.
+        KeySchema:
+          -
+            # attribute name that is used as the primary key for the table
+            AttributeName: userId
+            # Represents the attribute data, consisting of the data type and the attribute value itself. You can specify HASH or RANGE.
+            KeyType: HASH
+        # Describes a set of provisioned throughput values for an AWS::DynamoDB::Table resource. DynamoDB uses these capacity units to allocate sufficient resources to provide the requested throughput.
+        ProvisionedThroughput:
+          # Sets the desired minimum number of consistent reads of items (up to 4KB in size) per second for the specified table before Amazon DynamoDB balances the load.
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}

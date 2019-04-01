@@ -11,7 +11,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 app.use(bodyParser.json({ strict: false }));
 
 app.get('/', function(req, res) {
-  res.send('Hello World!');
+  res.send('Hello World! Updated function.');
 });
 
 // Get User endpoint

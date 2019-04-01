@@ -30,6 +30,8 @@ provider:
   # Passing the table name as an environment variable so our functions can use it.
   environment:
     USERS_TABLE: ${self:custom.tableName}
+  tags:
+    expressApp: true
 
 functions:
   app:
